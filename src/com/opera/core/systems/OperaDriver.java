@@ -106,7 +106,6 @@ public class OperaDriver implements WebDriver, FindsByLinkText, FindsById,
   
   public OperaDriver(Capabilities caps) {
 	  this(makeSettings(caps));
-	  System.out.println("Calling constructor with caps.");
 	  }
   
 
