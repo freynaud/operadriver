@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
@@ -51,6 +52,7 @@ import org.openqa.selenium.internal.FindsByLinkText;
 import org.openqa.selenium.internal.FindsByName;
 import org.openqa.selenium.internal.FindsByTagName;
 import org.openqa.selenium.internal.FindsByXPath;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.opera.core.systems.interaction.OperaAction;
 import com.opera.core.systems.interaction.UserInteraction;
@@ -101,19 +103,30 @@ public class OperaDriver implements WebDriver, FindsByLinkText, FindsById,
   protected Set<Integer> objectIds = new HashSet<Integer>();
   private String version;
 
+  
+  public OperaDriver(Capabilities caps) {
+	  this(makeSettings(caps));
+	  System.out.println("Calling constructor with caps.");
+	  }
+  
+
+  
   public OperaDriver() {
-    this(makeSettings());
+    this(makeSettings(null));
   }
 
   @Deprecated
   public OperaDriver(boolean autoStart) {
-    this(autoStart ? makeSettings() : null);
+    this(autoStart ? makeSettings(null) : null);
   }
 
+  
+  
   /**
    * Constructor that starts opera.
    */
   public OperaDriver(OperaDriverSettings settings) {
+	  
     logger.fine("Constructing OperaDriver with settings");
     if (settings != null) {
       this.settings = settings;
@@ -161,7 +174,7 @@ public class OperaDriver implements WebDriver, FindsByLinkText, FindsById,
    *
    * @return A new settings object that is correctly set up.
    */
-  private static OperaDriverSettings makeSettings() {
+  private static OperaDriverSettings makeSettings(Capabilities caps) {
     OperaDriverSettings settings = new OperaDriverSettings();
 
     OperaPaths paths = new OperaPaths();
@@ -171,6 +184,14 @@ public class OperaDriver implements WebDriver, FindsByLinkText, FindsById,
 
     settings.setOperaBinaryArguments("");
 
+    if (caps != null && caps.getCapability("opera.display")!=null){
+    	try {
+			int x = Integer.parseInt(caps.getCapability("opera.display").toString());
+			settings.setOperaLauncherXvfbDisplay(x);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException(caps.getCapability("opera.display")+" is not a valid display."+e.getMessage());
+		}
+    }
     return settings;
   }
 
